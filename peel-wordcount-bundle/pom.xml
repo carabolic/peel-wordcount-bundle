@@ -24,10 +24,6 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>peel-wordcount-spark-datagens</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
             <artifactId>peel-wordcount-flink-jobs</artifactId>
         </dependency>
         <dependency>
