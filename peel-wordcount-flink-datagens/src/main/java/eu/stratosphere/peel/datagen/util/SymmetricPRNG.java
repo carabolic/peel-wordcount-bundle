@@ -1,4 +1,4 @@
-package eu.stratosphere.procrustes.datagen.util;
+package eu.stratosphere.peel.datagen.util;
 
 
 public interface SymmetricPRNG {

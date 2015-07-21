@@ -1,4 +1,4 @@
-package eu.stratosphere.procrustes.datagen.util;
+package eu.stratosphere.peel.datagen.util;
 
 /**
  * c.f. "Press, William H. Numerical recipes 3rd edition: The art of scientific computing. Cambridge
