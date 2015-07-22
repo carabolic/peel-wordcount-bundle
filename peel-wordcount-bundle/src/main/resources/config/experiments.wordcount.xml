@@ -123,7 +123,7 @@
                            <value>
                                datagen.number.of.workers = ${system.default.config.parallelism.total}
                                datagen.tasks.per.worker =  ${system.default.config.parallelism.per-node}
-                               datagen.tuples.per.tasks = 10000
+                               datagen.tuples.per.task = 10000
                                datagen.path = random-strings-10000
                            </value>
                        </constructor-arg>
