@@ -47,8 +47,8 @@
     </dependencies>
 
     <build>
-        <!-- Assemble jar -->
         <plugins>
+            <!-- Assemble jar -->
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <executions>
