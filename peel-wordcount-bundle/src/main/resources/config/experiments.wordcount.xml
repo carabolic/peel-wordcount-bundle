@@ -3,133 +3,156 @@
 <beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.springframework.org/schema/beans"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-       <!--************************************************************************
-       * Data Generators
-       *************************************************************************-->
+    <!--************************************************************************
+    * Data Generators
+    *************************************************************************-->
 
-       <bean id="datagen.flink.word.garbage" class="eu.stratosphere.peel.extensions.flink.beans.job.FlinkJob">
-           <constructor-arg name="runner" ref="flink-0.9.0"/>
-           <constructor-arg name="command">
-               <value>-v -c eu.stratosphere.peel.datagen.flink.WordGenerator ${app.path.datagens}/peel-wordcount-flink-datagens-1.0-SNAPSHOT.jar ${datagen.number.of.workers} ${datagen.tasks.per.worker} ${datagen.tuples.per.task} ${system.hadoop-2.path.input}/random-words/${datagen.path}</value>
-           </constructor-arg>
-       </bean>
+    <bean id="datagen.flink.word.garbage" class="eu.stratosphere.peel.extensions.flink.beans.job.FlinkJob">
+        <constructor-arg name="runner" ref="flink-0.9.0"/>
+        <constructor-arg name="command">
+            <value><![CDATA[
+            -v -c eu.stratosphere.peel.datagen.flink.WordGenerator                  \
+                ${app.path.datagens}/peel-wordcount-flink-datagens-1.0-SNAPSHOT.jar \
+                ${datagen.number.of.workers}                                        \
+                ${datagen.tasks.per.worker}                                         \
+                ${datagen.tuples.per.task}                                          \
+                ${system.hadoop-2.path.input}/random-words/${datagen.path}
+            ]]>
+            </value>
+        </constructor-arg>
+    </bean>
 
-       <!--************************************************************************
-       * Data Sets
-       *************************************************************************-->
+    <!--************************************************************************
+    * Data Sets
+    *************************************************************************-->
 
-       <bean id="dataset.rubbish" class="eu.stratosphere.peel.core.beans.data.CopiedDataSet">
-              <constructor-arg name="src" value="${app.path.datasets}/rubbish.txt"/>
-              <constructor-arg name="dst" value="${system.hadoop-2.path.input}/rubbish.txt"/>
-              <constructor-arg name="fs" ref="hdfs-2.7.1"/>
-       </bean>
+    <bean id="dataset.rubbish" class="eu.stratosphere.peel.core.beans.data.CopiedDataSet">
+        <constructor-arg name="src" value="${app.path.datasets}/rubbish.txt"/>
+        <constructor-arg name="dst" value="${system.hadoop-2.path.input}/rubbish.txt"/>
+        <constructor-arg name="fs" ref="hdfs-2.7.1"/>
+    </bean>
 
-       <bean id="dataset.generated.words" class="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
-           <constructor-arg name="src" ref="datagen.flink.word.garbage"/>
-           <constructor-arg name="dst" value="${system.hadoop-2.path.input}/wordcount/${datagen.path}"/>
-           <constructor-arg name="fs" ref="hdfs-2.7.1"/>
-       </bean>
+    <bean id="dataset.generated.words" class="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
+        <constructor-arg name="src" ref="datagen.flink.word.garbage"/>
+        <constructor-arg name="dst" value="${system.hadoop-2.path.input}/wordcount/${datagen.path}"/>
+        <constructor-arg name="fs" ref="hdfs-2.7.1"/>
+    </bean>
 
-       <!--************************************************************************
-       * Experiments
-       *************************************************************************-->
+    <!--************************************************************************
+    * Experiments
+    *************************************************************************-->
 
-       <!-- Wordcount output -->
-       <bean id="wordcount.output" class="eu.stratosphere.peel.core.beans.data.ExperimentOutput">
-              <constructor-arg name="path" value="${system.hadoop-2.path.output}/wordcount"/>
-              <constructor-arg name="fs" ref="hdfs-2.7.1"/>
-       </bean>
+    <!-- Wordcount output -->
+    <bean id="wordcount.output" class="eu.stratosphere.peel.core.beans.data.ExperimentOutput">
+        <constructor-arg name="path" value="${system.hadoop-2.path.output}/wordcount"/>
+        <constructor-arg name="fs" ref="hdfs-2.7.1"/>
+    </bean>
 
-       <!-- wordcount experiment with fixed dataset (flink) -->
-       <bean id="experiment.flink.wordcount" parent="experiment.flink-0.9.0" abstract="true">
-              <constructor-arg name="command">
-                     <value>-v -c eu.stratosphere.peel.flink.Wordcount ${app.path.apps}/peel-wordcount-flink-jobs-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/rubbish.txt ${system.hadoop-2.path.output}/flink-wordcount</value>
-              </constructor-arg>
-              <constructor-arg name="inputs">
-                     <set value-type="eu.stratosphere.peel.core.beans.data.DataSet">
-                            <ref bean="dataset.rubbish"/>
-                     </set>
-              </constructor-arg>
-              <constructor-arg name="outputs">
-                     <set value-type="eu.stratosphere.peel.core.beans.data.ExperimentOutput">
-                            <ref bean="wordcount.output"/>
-                     </set>
-              </constructor-arg>
-       </bean>
+    <!-- wordcount experiment with fixed dataset (flink) -->
+    <bean id="experiment.flink.wordcount" parent="experiment.flink-0.9.0" abstract="true">
+        <constructor-arg name="command">
+            <value><![CDATA[
+            -v -c eu.stratosphere.peel.flink.Wordcount                      \
+                ${app.path.apps}/peel-wordcount-flink-jobs-1.0-SNAPSHOT.jar \
+                ${system.hadoop-2.path.input}/rubbish.txt                   \
+                ${system.hadoop-2.path.output}/flink-wordcount
+            ]]></value>
+        </constructor-arg>
+        <constructor-arg name="inputs">
+            <set value-type="eu.stratosphere.peel.core.beans.data.DataSet">
+                <ref bean="dataset.rubbish"/>
+            </set>
+        </constructor-arg>
+        <constructor-arg name="outputs">
+            <set value-type="eu.stratosphere.peel.core.beans.data.ExperimentOutput">
+                <ref bean="wordcount.output"/>
+            </set>
+        </constructor-arg>
+    </bean>
 
-       <!-- wordcount experiment with generated data (flink) -->
-       <bean id="experiment.flink.wordcount.generated" parent="experiment.flink-0.9.0" abstract="true">
-           <constructor-arg name="command">
-               <value>-v -c eu.stratosphere.peel.flink.Wordcount ${app.path.apps}/peel-wordcount-flink-jobs-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/wordcount/${datagen.path} ${system.hadoop-2.path.output}/flink-wordcount</value>
-           </constructor-arg>
-           <constructor-arg name="inputs">
-               <set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
-                   <ref bean="dataset.generated.words"/>
-               </set>
-           </constructor-arg>
-           <constructor-arg name="outputs">
-               <set value-type="eu.stratosphere.peel.core.beans.data.ExperimentOutput">
-                   <ref bean="wordcount.output"/>
-               </set>
-           </constructor-arg>
-       </bean>
+    <!-- wordcount experiment with generated data (flink) -->
+    <bean id="experiment.flink.wordcount.generated" parent="experiment.flink-0.9.0" abstract="true">
+        <constructor-arg name="command">
+            <value><![CDATA[
+            -v -c eu.stratosphere.peel.flink.Wordcount                    \
+              ${app.path.apps}/peel-wordcount-flink-jobs-1.0-SNAPSHOT.jar \
+              ${system.hadoop-2.path.input}/wordcount/${datagen.path}     \
+              ${system.hadoop-2.path.output}/flink-wordcount
+            ]]></value>
+        </constructor-arg>
+        <constructor-arg name="inputs">
+            <set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
+                <ref bean="dataset.generated.words"/>
+            </set>
+        </constructor-arg>
+        <constructor-arg name="outputs">
+            <set value-type="eu.stratosphere.peel.core.beans.data.ExperimentOutput">
+                <ref bean="wordcount.output"/>
+            </set>
+        </constructor-arg>
+    </bean>
 
-       <!-- wordcount experiment (spark) -->
-       <bean id="experiment.spark.wordcount" parent="experiment.spark-1.4.0" abstract="true">
-              <constructor-arg name="command">
-                     <value>--class eu.stratosphere.peel.spark.Wordcount ${app.path.apps}/peel-wordcount-spark-jobs-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/rubbish.txt ${system.hadoop-2.path.output}/spark-wordcount</value>
-              </constructor-arg>
-              <constructor-arg name="inputs">
-                     <set value-type="eu.stratosphere.peel.core.beans.data.DataSet">
-                            <ref bean="dataset.rubbish"/>
-                     </set>
-              </constructor-arg>
-              <constructor-arg name="outputs">
-                     <set value-type="eu.stratosphere.peel.core.beans.data.ExperimentOutput"/>
-              </constructor-arg>
-       </bean>
+    <!-- wordcount experiment (spark) -->
+    <bean id="experiment.spark.wordcount" parent="experiment.spark-1.4.0" abstract="true">
+        <constructor-arg name="command">
+            <value><![CDATA[
+            --class eu.stratosphere.peel.spark.Wordcount                   \
+              ${app.path.apps}/peel-wordcount-spark-jobs-1.0-SNAPSHOT.jar  \
+              ${system.hadoop-2.path.input}/rubbish.txt                    \
+              ${system.hadoop-2.path.output}/spark-wordcount
+            ]]></value>
+        </constructor-arg>
+        <constructor-arg name="inputs">
+            <set value-type="eu.stratosphere.peel.core.beans.data.DataSet">
+                <ref bean="dataset.rubbish"/>
+            </set>
+        </constructor-arg>
+        <constructor-arg name="outputs">
+            <set value-type="eu.stratosphere.peel.core.beans.data.ExperimentOutput"/>
+        </constructor-arg>
+    </bean>
 
-       <!--************************************************************************
-       * Suites
-       *************************************************************************-->
+    <!--************************************************************************
+    * Suites
+    *************************************************************************-->
 
-       <!-- suite for local development and testing -->
-       <bean id="wordcount.default.fixed" class="eu.stratosphere.peel.core.beans.experiment.ExperimentSuite">
-              <constructor-arg name="experiments">
-                     <list value-type="eu.stratosphere.peel.core.beans.experiment.Experiment">
-                            <bean parent="experiment.flink.wordcount">
-                                   <constructor-arg name="name" value="wordcount.flink"/>
-                                   <constructor-arg name="config">
-                                          <value/>
-                                   </constructor-arg>
-                            </bean>
-                            <bean parent="experiment.spark.wordcount">
-                                   <constructor-arg name="name" value="wordcount.spark"/>
-                                   <constructor-arg name="config">
-                                          <value/>
-                                   </constructor-arg>
-                            </bean>
-                     </list>
-              </constructor-arg>
-       </bean>
+    <!-- suite for local development and testing -->
+    <bean id="wordcount.default.fixed" class="eu.stratosphere.peel.core.beans.experiment.ExperimentSuite">
+        <constructor-arg name="experiments">
+            <list value-type="eu.stratosphere.peel.core.beans.experiment.Experiment">
+                <bean parent="experiment.flink.wordcount">
+                    <constructor-arg name="name" value="wordcount.flink"/>
+                    <constructor-arg name="config">
+                        <value/>
+                    </constructor-arg>
+                </bean>
+                <bean parent="experiment.spark.wordcount">
+                    <constructor-arg name="name" value="wordcount.spark"/>
+                    <constructor-arg name="config">
+                        <value/>
+                    </constructor-arg>
+                </bean>
+            </list>
+        </constructor-arg>
+    </bean>
 
-       <!-- suite for local development and testing -->
-       <bean id="wordcount.default.generated" class="eu.stratosphere.peel.core.beans.experiment.ExperimentSuite">
-           <constructor-arg name="experiments">
-               <list value-type="eu.stratosphere.peel.core.beans.experiment.Experiment">
-                   <bean parent="experiment.flink.wordcount.generated">
-                       <constructor-arg name="name" value="wordcount.flink.generated"/>
-                       <constructor-arg name="config">
-                           <value>
-                               datagen.number.of.workers = ${system.default.config.parallelism.total}
-                               datagen.tasks.per.worker =  ${system.default.config.parallelism.per-node}
-                               datagen.tuples.per.task = 10000
-                               datagen.path = random-strings-10000
-                           </value>
-                       </constructor-arg>
-                   </bean>
-               </list>
-           </constructor-arg>
-       </bean>
+    <!-- suite for local development and testing -->
+    <bean id="wordcount.default.generated" class="eu.stratosphere.peel.core.beans.experiment.ExperimentSuite">
+        <constructor-arg name="experiments">
+            <list value-type="eu.stratosphere.peel.core.beans.experiment.Experiment">
+                <bean parent="experiment.flink.wordcount.generated">
+                    <constructor-arg name="name" value="wordcount.flink.generated"/>
+                    <constructor-arg name="config">
+                        <value>
+                            datagen.number.of.workers = 1
+                            datagen.tasks.per.worker = ${system.default.config.parallelism.per-node}
+                            datagen.tuples.per.task = 10000
+                            datagen.path = random-strings-${datagen.tuples.per.task}
+                        </value>
+                    </constructor-arg>
+                </bean>
+            </list>
+        </constructor-arg>
+    </bean>
 
 </beans>
