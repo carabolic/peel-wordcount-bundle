@@ -59,7 +59,7 @@
                 </executions>
                 <configuration>
                     <appendAssemblyId>false</appendAssemblyId>
-                    <finalName>peel-wordcount</finalName>
+                    <finalName>${parent.artifactId}</finalName>
                     <descriptors>
                         <descriptor>src/main/assembly/bin.xml</descriptor>
                     </descriptors>

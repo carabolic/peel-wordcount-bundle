@@ -22,9 +22,9 @@
             <fileMode>0644</fileMode>
             <directoryMode>0755</directoryMode>
             <excludes>
-                <exclude>eu.stratosphere:peel-wordcount-*-datagens</exclude>
-                <exclude>eu.stratosphere:peel-wordcount-*-jobs</exclude>
-                <exclude>eu.stratosphere:peel-wordcount-*-apps</exclude>
+                <exclude>eu.stratosphere:${parent.artifactId}-*-datagens</exclude>
+                <exclude>eu.stratosphere:${parent.artifactId}-*-jobs</exclude>
+                <exclude>eu.stratosphere:${parent.artifactId}-*-apps</exclude>
             </excludes>
         </dependencySet>
         <!-- datagens -->
@@ -38,7 +38,7 @@
             <fileMode>0644</fileMode>
             <directoryMode>0755</directoryMode>
             <includes>
-                <include>eu.stratosphere:peel-wordcount-*-datagens</include>
+                <include>eu.stratosphere:${parent.artifactId}-*-datagens</include>
             </includes>
         </dependencySet>
         <!-- apps -->
@@ -52,8 +52,8 @@
             <fileMode>0644</fileMode>
             <directoryMode>0755</directoryMode>
             <includes>
-                <include>eu.stratosphere:peel-wordcount-*-jobs</include>
-                <include>eu.stratosphere:peel-wordcount-*-apps</include>
+                <include>eu.stratosphere:${parent.artifactId}-*-jobs</include>
+                <include>eu.stratosphere:${parent.artifactId}-*-apps</include>
             </includes>
         </dependencySet>
     </dependencySets>
