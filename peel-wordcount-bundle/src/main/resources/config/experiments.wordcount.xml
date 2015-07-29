@@ -11,12 +11,13 @@
         <constructor-arg name="runner" ref="flink-0.9.0"/>
         <constructor-arg name="command">
             <value><![CDATA[
-            -v -c eu.stratosphere.peel.datagen.flink.WordGenerator                  \
+            --class eu.stratosphere.peel.datagen.flink.WordGenerator                \
                 ${app.path.datagens}/peel-wordcount-flink-datagens-1.0-SNAPSHOT.jar \
+                1000                                                                \
                 ${datagen.number.of.workers}                                        \
                 ${datagen.tasks.per.worker}                                         \
                 ${datagen.tuples.per.task}                                          \
-                ${system.hadoop-2.path.input}/random-words/${datagen.path}
+                ${system.hadoop-2.path.input}/wordcount/${datagen.path}
             ]]>
             </value>
         </constructor-arg>
@@ -28,7 +29,7 @@
 
     <bean id="dataset.rubbish" class="eu.stratosphere.peel.core.beans.data.CopiedDataSet">
         <constructor-arg name="src" value="${app.path.datasets}/rubbish.txt"/>
-        <constructor-arg name="dst" value="${system.hadoop-2.path.input}/rubbish.txt"/>
+        <constructor-arg name="dst" value="${system.hadoop-2.path.input}/wordcount/rubbish.txt"/>
         <constructor-arg name="fs" ref="hdfs-2.7.1"/>
     </bean>
 
@@ -52,10 +53,10 @@
     <bean id="experiment.flink.wordcount" parent="experiment.flink-0.9.0" abstract="true">
         <constructor-arg name="command">
             <value><![CDATA[
-            -v -c eu.stratosphere.peel.flink.Wordcount                      \
+            --class eu.stratosphere.peel.flink.Wordcount                    \
                 ${app.path.apps}/peel-wordcount-flink-jobs-1.0-SNAPSHOT.jar \
-                ${system.hadoop-2.path.input}/rubbish.txt                   \
-                ${system.hadoop-2.path.output}/flink-wordcount
+                ${system.hadoop-2.path.input}/wordcount/rubbish.txt                   \
+                ${system.hadoop-2.path.output}/wordcount
             ]]></value>
         </constructor-arg>
         <constructor-arg name="inputs">
@@ -74,11 +75,12 @@
     <bean id="experiment.flink.wordcount.generated" parent="experiment.flink-0.9.0" abstract="true">
         <constructor-arg name="command">
             <value><![CDATA[
-            -v -c eu.stratosphere.peel.flink.Wordcount                    \
+            --class eu.stratosphere.peel.flink.Wordcount                  \
               ${app.path.apps}/peel-wordcount-flink-jobs-1.0-SNAPSHOT.jar \
               ${system.hadoop-2.path.input}/wordcount/${datagen.path}     \
-              ${system.hadoop-2.path.output}/flink-wordcount
-            ]]></value>
+              ${system.hadoop-2.path.output}/wordcount
+            ]]>
+            </value>
         </constructor-arg>
         <constructor-arg name="inputs">
             <set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
@@ -98,8 +100,8 @@
             <value><![CDATA[
             --class eu.stratosphere.peel.spark.Wordcount                   \
               ${app.path.apps}/peel-wordcount-spark-jobs-1.0-SNAPSHOT.jar  \
-              ${system.hadoop-2.path.input}/rubbish.txt                    \
-              ${system.hadoop-2.path.output}/spark-wordcount
+              ${system.hadoop-2.path.input}/wordcount/rubbish.txt                    \
+              ${system.hadoop-2.path.output}/wordcount
             ]]></value>
         </constructor-arg>
         <constructor-arg name="inputs">
