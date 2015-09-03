@@ -4,6 +4,7 @@ import eu.stratosphere.peel.datagen.util.RanHash
 
 class Dictionary (seed : Long, size : Int) extends Iterable[String] {
 
+  private val MIN_LENGTH = 2
   private val MAX_LENGTH = 16
   private val NUM_CHARACTERS = 26
 
@@ -15,7 +16,7 @@ class Dictionary (seed : Long, size : Int) extends Iterable[String] {
     require(0 <= index && index < size)
     // skip to the correct position within the random sequence
     random.skipTo(index * (NUM_CHARACTERS + 1))
-    val len = random.nextInt(MAX_LENGTH - 1)
+    val len = random.nextInt(MAX_LENGTH - MIN_LENGTH - 1) + MIN_LENGTH
     val strBld = new StringBuilder(len)
     for (i <- 0 until len) {
         val c = ('a'.toInt + random.nextInt(NUM_CHARACTERS)).toChar
