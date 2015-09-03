@@ -1,6 +1,6 @@
 package eu.stratosphere.peel.datagen.flink
 
-import eu.stratosphere.peel.datagen.flink.Distributions.{Gaussian, Pareto, Uniform, Distribution}
+import eu.stratosphere.peel.datagen.flink.Distributions._
 import eu.stratosphere.peel.datagen.util.RanHash
 import org.apache.flink.api.scala._
 import org.apache.flink.core.fs.FileSystem
@@ -21,7 +21,7 @@ object WordGenerator {
     val coresPerWorker        = args(1).toInt
     val tuplesPerTask         = args(2).toInt
     val sizeOfDictionary      = args(3).toInt
-    implicit val distribution = parseDist(args(4))
+    implicit val distribution = parseDist(sizeOfDictionary, args(4))
     val outputPath            = args(5)
 
     val dop                   = coresPerWorker * numberOfWorkers
@@ -44,21 +44,20 @@ object WordGenerator {
     environment.execute(s"WordGenerator[$N]")
   }
 
-  def word(i: Long)(implicit dictionary: Array[String], distribution: Distribution) = {
-    dictionary(distribution.sample(new RanHash(SEED + i)).toInt)
+  def word(i: Long)(implicit dictionary: Array[String], distribution: DiscreteDistribution) = {
+    dictionary(distribution.sample(new RanHash(SEED + i).next()))
   }
 
   object Patterns {
-    val Uniform = """Uniform\[(\d+)\]""".r
-    val Gaussian = """Gaussian\[(\d+),(\d+)\]""".r
-    val Pareto = """Pareto\[(\d+)\]""".r
+    val DiscreteUniform = """(Uniform)""".r
+    val Binomial = """Binomial\[(1|1\.0|0\.\d+)\]""".r
+    val Zipf = """Zipf\[(\d+(?:\.\d+)?)\]""".r
   }
 
-  def parseDist(s: String): Distribution = s match {
-    case Patterns.Pareto(a) => Pareto(a.toDouble)
-    case Patterns.Gaussian(a, b) => Gaussian(a.toDouble, b.toDouble)
-    case Patterns.Uniform(a) => Uniform(a.toInt)
-    case _ => Pareto(1)
+  def parseDist(card: Int, s: String): DiscreteDistribution = s match {
+    case Patterns.DiscreteUniform(_) => DiscreteUniform(card)
+    case Patterns.Binomial(a) => Binomial(card, a.toDouble)
+    case Patterns.Zipf(a) => Zipf(card, a.toDouble)
   }
 
 }
